@@ -67,42 +67,34 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Extensions
     db.init_app(app)
     JWTManager(app)
 
-    # CORS (allow frontend)
     CORS(app, supports_credentials=True)
 
-    # Ensure uploads folder exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-    # Import models
     from models.user_model import UserModel
     from models.project_model import ProjectModel, project_members
     from models.task_model import TaskModel
     from models.comment_model import CommentModel, AttachmentModel
 
-    # Import routes
     from routes.auth_routes import auth_bp
     from routes.project_routes import projects_bp
     from routes.task_routes import tasks_bp
     from routes.comment_routes import comments_bp
     from routes.analytics_routes import analytics_bp
 
-    # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(projects_bp, url_prefix='/api/projects')
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
     app.register_blueprint(comments_bp, url_prefix='/api')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
 
-    # Health check route (important for Railway)
     @app.route("/")
     def health():
         return {"status": "API running"}
 
-    # Create tables safely
     with app.app_context():
         try:
             db.create_all()
@@ -113,8 +105,11 @@ def create_app():
     return app
 
 
-# Local development only
+# IMPORTANT for Gunicorn
+app = create_app()
+
+
+# Local development
 if __name__ == "__main__":
-    app = create_app()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
