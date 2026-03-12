@@ -55,24 +55,15 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-print(">>> Starting app import...")
-
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
-print(">>> Flask imported OK")
-
 from config import Config
-print(">>> Config imported OK")
-print(f">>> DB_HOST={os.getenv('MYSQLHOST')} DB_USER={os.getenv('MYSQLUSER')} DB_NAME={os.getenv('MYSQLDATABASE')}")
-
 from models import db
-print(">>> Models imported OK")
 
 
 def create_app():
-    print(">>> create_app() called")
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -82,20 +73,16 @@ def create_app():
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-    print(">>> Importing models...")
     from models.user_model import UserModel
     from models.project_model import ProjectModel, project_members
     from models.task_model import TaskModel
     from models.comment_model import CommentModel, AttachmentModel
-    print(">>> Models OK")
 
-    print(">>> Importing routes...")
     from routes.auth_routes import auth_bp
     from routes.project_routes import projects_bp
     from routes.task_routes import tasks_bp
     from routes.comment_routes import comments_bp
     from routes.analytics_routes import analytics_bp
-    print(">>> Routes OK")
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(projects_bp, url_prefix='/api/projects')
@@ -107,21 +94,18 @@ def create_app():
     def health():
         return {"status": "API running"}
 
-    print(">>> Running db.create_all()...")
-    with app.app_context():
+    @app.route("/init-db")
+    def init_db():
         try:
             db.create_all()
-            print("✅ Database tables ready")
+            return {"status": "Tables created"}
         except Exception as e:
-            print(f"⚠️ DB init skipped: {e}")
+            return {"status": "error", "message": str(e)}, 500
 
-    print(">>> App ready!")
     return app
 
 
-print(">>> Calling create_app()...")
 app = create_app()
-print(">>> Done!")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
