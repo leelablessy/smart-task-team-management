@@ -91,25 +91,25 @@ def create_app():
     app.register_blueprint(comments_bp, url_prefix='/api')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
 
+    # Railway health check route
     @app.route("/")
     def health():
         return {"status": "API running"}
 
-    with app.app_context():
-        try:
+    # Only create tables in local development
+    if os.environ.get("RAILWAY_ENVIRONMENT") is None:
+        with app.app_context():
             db.create_all()
-            print("✅ Database tables ready (MySQL)")
-        except Exception as e:
-            print("❌ Database error:", e)
+            print("✅ Database tables ready (Local)")
 
     return app
 
 
-# IMPORTANT for Gunicorn
+# For Gunicorn
 app = create_app()
 
 
-# Local development
+# Local run
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
