@@ -37,10 +37,10 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-smart-task-mvc-2024")
 
     # Railway MySQL variables
-    DB_USER = os.getenv("MYSQLUSER")
-    DB_PASSWORD = os.getenv("MYSQL_ROOT_PASSWORD")
+    DB_USER = os.getenv("MYSQLUSER", "root")  # Railway uses root by default
+    DB_PASSWORD = os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_ROOT_PASSWORD")
     DB_HOST = os.getenv("MYSQLHOST")
-    DB_PORT = os.getenv("MYSQLPORT")
+    DB_PORT = os.getenv("MYSQLPORT", "3306")
     DB_NAME = os.getenv("MYSQLDATABASE")
 
     SQLALCHEMY_DATABASE_URI = (
