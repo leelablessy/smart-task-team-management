@@ -37,7 +37,7 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-smart-task-mvc-2024")
 
     # Railway MySQL variables
-    DB_USER = os.getenv("MYSQLUSER", "root")  # Railway uses root by default
+    DB_USER = os.getenv("MYSQLUSER", "root")
     DB_PASSWORD = os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_ROOT_PASSWORD")
     DB_HOST = os.getenv("MYSQLHOST")
     DB_PORT = os.getenv("MYSQLPORT", "3306")
@@ -45,9 +45,15 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = (
         f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"?connect_timeout=10"
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "connect_args": {"connect_timeout": 10}
+    }
 
     # Upload settings
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
