@@ -70,7 +70,7 @@ def create_app():
     db.init_app(app)
     JWTManager(app)
 
-    CORS(app, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
